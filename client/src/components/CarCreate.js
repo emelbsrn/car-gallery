@@ -62,6 +62,37 @@ class CarCreate extends React.Component {
             }
         </div>
     );
+    renderDropzoneInput = ({
+        input,
+        meta: {
+            touched,
+            error
+        }
+    }) => {
+    const files = input.value;
+    return (
+        <>
+            <Dropzone name="file" accept={'image/*'} multiple={true} onDrop={(filesToUpload, e) => input.onChange(filesToUpload)}>
+                {({getRootProps, getInputProps}) => (
+                    <div className = "field" >
+                        <label>Upload an image</label>
+                        <div className="ui action input" {...getRootProps()}>
+                            <input type="text" placeholder={files[0] ? files[0].name : '"Drag & drop some files here, or click to select files'} readOnly />
+                            <input type="file" {...getInputProps()} />
+                            <div className="ui icon button">
+                                <i className="attach icon"></i>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </Dropzone>
+            {touched &&
+                    ((error && <div className="ui error message">
+                        <div className = "header">{error}</div></div > ))
+            }
+        </>
+    );
+};
 
     handleModelChange = (e) => {
         if(e.target.value)
@@ -79,8 +110,7 @@ class CarCreate extends React.Component {
     onSubmit = formValues => {
         console.log(formValues);
         this.props.change('model', this.props.selectedModel)
-        this.props.change('filePath',this.props.imagePath)
-        //this.props.createCar(formValues);
+        this.props.createCar(formValues);
     };
 
     imageUpload = imageFile => {
@@ -89,7 +119,6 @@ class CarCreate extends React.Component {
     }
 
     render() {
-        console.log()
         return(
             <form onSubmit={this.props.handleSubmit(this.onSubmit)} className="ui form error">
                 <Field type="text" name="title" component={this.renderField} label="Enter Title"/>
@@ -102,20 +131,7 @@ class CarCreate extends React.Component {
                     <option value = "" >Select a model</option>
                     {this.props.models.map((item) => <option key={item} value={item}>{item}</option>)}
                 </Field>
-                <Dropzone name="file" onDrop={acceptedFiles => this.imageUpload(acceptedFiles[0])}>
-                    {({getRootProps, getInputProps}) => (
-                        <div className = "field" >
-                            <label>Upload an image</label>
-                            <div className="ui action input" {...getRootProps()}>
-                                <input type="text" placeholder="Drag & drop some files here, or click to select files" readOnly />
-                                <input type="file" {...getInputProps()} />
-                                <div className="ui icon button">
-                                    <i className="attach icon"></i>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                </Dropzone>
+                <Field name="image" component={this.renderDropzoneInput}/>
                 <button className="ui button primary" disabled={this.props.pristine || this.props.submitting}>Submit</button>
             </form>
         )
@@ -139,6 +155,9 @@ const validate = formValues => {
     }
     if (!formValues.model) {
         errors.model = 'You must select a model'
+    }
+    if (!formValues.image) {
+        errors.image = 'You must upload an image of the car'
     }
     return errors
 }
