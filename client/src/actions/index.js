@@ -2,7 +2,11 @@ import cars from '../apis/cars';
 import history from '../history';
 
 export const createCar = formValues => async dispatch => {
-    const response = await cars.post('/cars', {...formValues});
+
+    const response = await cars.post('/cars', 
+        formValues
+    );
+    
     dispatch({
         type: 'CREATE_CAR',
         payload: response.data
@@ -44,7 +48,7 @@ export const emptyModelList = () => ({
     type: 'EMPTY_MODEL_LIST'
 });
 
-export const getImagePath = file => ({
+export const getImages = file => ({
     type: 'IMAGE_UPLOAD',
-    payload: file.path
+    payload: file
 });

@@ -13,7 +13,7 @@ import {
     getSelectedModel,
     emptySelectedModel,
     emptyModelList,
-    getImagePath
+    getImages
 } from '../actions';
 
 
@@ -69,30 +69,45 @@ class CarCreate extends React.Component {
             error
         }
     }) => {
-    const files = input.value;
-    return (
-        <>
-            <Dropzone name="file" accept={'image/*'} multiple={true} onDrop={(filesToUpload, e) => input.onChange(filesToUpload)}>
-                {({getRootProps, getInputProps}) => (
-                    <div className = "field" >
-                        <label>Upload an image</label>
-                        <div className="ui action input" {...getRootProps()}>
-                            <input type="text" placeholder={files[0] ? files[0].name : '"Drag & drop some files here, or click to select files'} readOnly />
-                            <input type="file" {...getInputProps()} />
-                            <div className="ui icon button">
-                                <i className="attach icon"></i>
+        return (
+            <>
+                <Dropzone name="file" accept={'image/*'} multiple={true} onDrop={this.onDrop.bind(input.onChange)}>
+                    {({getRootProps, getInputProps}) => (
+                        <div className = "field" >
+                            <label>Upload an image</label>
+                            <div className="ui action input" {...getRootProps()}>
+                                <input type = "text"
+                                placeholder = {
+                                        this.props.images.length>0 ? (this.props.images.map((file) => {
+                                                                    return file.name
+                                                                })) : 'Drag & drop some files here, or click to select files'} readOnly />
+                                < input type = "file"
+                                name = "image" {
+                                    ...getInputProps()
+                                }
+                                onChange = {input.onChange}
+                                />
+                                <div className="ui icon button">
+                                    <i className="attach icon"></i>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                )}
-            </Dropzone>
-            {touched &&
-                    ((error && <div className="ui error message">
-                        <div className = "header">{error}</div></div > ))
-            }
-        </>
-    );
-};
+                    )}
+                </Dropzone>
+                {touched &&
+                        ((error && <div className="ui error message">
+                            <div className = "header">{error}</div></div > ))
+                }
+            </>
+        );
+    };
+
+    onDrop = (filesToUpload) => {
+        filesToUpload.map(file => {
+             return this.props.getImages(file);
+        })
+
+    }
 
     handleModelChange = (e) => {
         if(e.target.value)
@@ -107,20 +122,15 @@ class CarCreate extends React.Component {
             this.props.emptyModelList();
     }
 
-    onSubmit = formValues => {
-        console.log(formValues);
+    onSubmit = () => {
+        var formData = new FormData(document.getElementById('create-form'));
         this.props.change('model', this.props.selectedModel)
-        this.props.createCar(formValues);
+        this.props.createCar(formData);
     };
-
-    imageUpload = imageFile => {
-        console.log(imageFile)
-        this.props.getImagePath(imageFile);
-    }
 
     render() {
         return(
-            <form onSubmit={this.props.handleSubmit(this.onSubmit)} className="ui form error">
+            <form onSubmit={this.props.handleSubmit(this.onSubmit)} className="ui form error" id="create-form" encType="multipart/form-data">
                 <Field type="text" name="title" component={this.renderField} label="Enter Title"/>
                 <Field type="text" name = "description" component={this.renderField} label="Enter Description"/>
                 <Field name="brand" component={this.renderSelectField} label="Select Brand" onChangeVal={this.handleBrandChange.bind(this)} >
@@ -156,18 +166,18 @@ const validate = formValues => {
     if (!formValues.model) {
         errors.model = 'You must select a model'
     }
-    if (!formValues.image) {
+    /*if (!formValues.image) {
         errors.image = 'You must upload an image of the car'
-    }
+    }*/
     return errors
 }
 
 const mapStateToProps = (state) => {
     return {
-        brands: state.cars.brands,
-        models: state.cars.models,
-        selectedModel: state.cars.selectedModel,
-        imagePath: state.cars.imagePath
+        brands: state.types.brands,
+        models: state.types.models,
+        selectedModel: state.types.selectedModel,
+        images: state.types.images
     }
 }
 
@@ -183,5 +193,5 @@ export default connect(mapStateToProps, {
     getSelectedModel,
     emptyModelList,
     emptySelectedModel,
-    getImagePath
+    getImages
 })(CarCreate);

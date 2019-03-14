@@ -2,17 +2,24 @@ const express = require('express');
 const router = express.Router();
 const Car = require('../models/Car');
 const Brand = require('../models/Brand');
-const fs = require('fs');
-var multer = require('multer');
 
-var upload = multer({
-    dest: 'C:\\Users\\e.basaran\\Documents\\projects\\car-gallery\\images'
-})
-
-router.post('/cars', upload.single('image'), function (req, res) {
+router.post('/cars', function (req, res) {
+    let uploadFile = req.files.image;
     const newCar = new Car(req.body);
-    //newCar.image.data = fs.readFileSync(req.body.image[0].path);
-    //newCar.image.contentType = req.body.image[0].mimetype;
+    console.log(req.body)
+    for (var i=0; i< uploadFile.length; i++) {
+        console.log(uploadFile[i])
+        uploadFile[i].mv(
+            `${__dirname}/../images/${uploadFile[i].name}`,
+            function (err, todos) {
+                if (err) {
+                    console.log(err);
+                } else {
+                    res.json(todos);
+                }
+            }
+        )
+    }
     newCar.save()
         .then(() => {
             res.status(200).json({
@@ -26,6 +33,16 @@ router.post('/cars', upload.single('image'), function (req, res) {
 
 router.get('/brands', function (req, res) {
     Brand.find(function (err, todos) {
+        if (err) {
+            console.log(err);
+        } else {
+            res.json(todos);
+        }
+    });
+});
+
+router.get('/cars', function (req, res) {
+    Car.find(function (err, todos) {
         if (err) {
             console.log(err);
         } else {
