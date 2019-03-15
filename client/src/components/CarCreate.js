@@ -71,9 +71,9 @@ class CarCreate extends React.Component {
     }) => {
         return (
             <>
-                <Dropzone name="file" accept={'image/*'} multiple={true} onDrop={this.onDrop.bind(input.onChange)}>
+                <Dropzone name="file" accept={'image/*'} multiple={true} onDrop={this.onDrop.bind(input)}>
                     {({getRootProps, getInputProps}) => (
-                        <div className = "field" >
+                        < div className = "field" onChange = {input.onChange} >
                             <label>Upload an image</label>
                             <div className="ui action input" {...getRootProps()}>
                                 <input type = "text"
@@ -81,11 +81,10 @@ class CarCreate extends React.Component {
                                         this.props.images.length>0 ? (this.props.images.map((file) => {
                                                                     return file.name
                                                                 })) : 'Drag & drop some files here, or click to select files'} readOnly />
-                                < input type = "file"
+                                <input type = "file"
                                 name = "image" {
                                     ...getInputProps()
                                 }
-                                onChange = {input.onChange}
                                 />
                                 <div className="ui icon button">
                                     <i className="attach icon"></i>
@@ -123,7 +122,14 @@ class CarCreate extends React.Component {
     }
 
     onSubmit = () => {
+        
         var formData = new FormData(document.getElementById('create-form'));
+
+        if (this.props.images) {
+            this.props.images.forEach(file => {
+                formData.append('image', file);
+            });
+        }
         this.props.change('model', this.props.selectedModel)
         this.props.createCar(formData);
     };

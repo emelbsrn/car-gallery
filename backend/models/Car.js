@@ -14,12 +14,8 @@ let CarSchema = new Schema({
     model: {
         type: String
     },
-    imagePath: {
-        type: String
-    },
-    image: {
-        data: Buffer,
-        contentType: String
+    imagePaths: {
+        type: Array
     }
 });
 

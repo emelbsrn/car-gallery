@@ -4,13 +4,14 @@ const Car = require('../models/Car');
 const Brand = require('../models/Brand');
 
 router.post('/cars', function (req, res) {
-    let uploadFile = req.files.image;
+    const uploadFile = req.files.image;
     const newCar = new Car(req.body);
-    console.log(req.body)
+    console.log(req.files)
     for (var i=0; i< uploadFile.length; i++) {
-        console.log(uploadFile[i])
+        const imagePath = `${__dirname}/../images/${uploadFile[i].name}`
+        newCar.imagePaths[i] = imagePath
         uploadFile[i].mv(
-            `${__dirname}/../images/${uploadFile[i].name}`,
+            imagePath,
             function (err, todos) {
                 if (err) {
                     console.log(err);
