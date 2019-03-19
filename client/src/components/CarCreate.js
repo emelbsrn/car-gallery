@@ -30,13 +30,14 @@ class CarCreate extends React.Component {
             error
         }    
     }) => (
-        <div className = "field" >
-            <label>{label}</label>
-            <input {...input} type={type} />
-            {touched &&
-                    ((error && <div className="ui error message">
-                        <div className = "header">{error}</div></div > ))
-            }
+        <div className = "form-group row" >
+            <label className="col-sm-2 col-form-label">{label}</label>
+            <div className="col-sm-10">
+                <input {...input} type={type} className="form-control"/>
+                {touched &&
+                        ((error && <div className="text-danger"> {error}</div > ))
+                }
+            </div>
         </div>
     );
 
@@ -51,17 +52,45 @@ class CarCreate extends React.Component {
             error
         }
     }) => (
-        <div className="field" onChange={onChangeVal} >
-            <label>{label}</label>
-            <select value={selectVal} {...input}>
-                {children}
-            </select>
-            {touched &&
-                    ((error && <div className="ui error message">
-                        <div className = "header">{error}</div></div > ))
-            }
+        <div className="form-group row" onChange={onChangeVal} >
+            <label className="col-sm-2 col-form-label">{label}</label>
+            <div className="col-sm-10">
+                <select value={selectVal} {...input} className="form-control">
+                    {children}
+                </select>
+                {touched &&
+                        ((error && <div className="text-danger"> {error}</div > ))
+                }
+            </div>
         </div>
     );
+    renderRadioInput = ({
+        label,
+        type,
+        inputname,
+        values,
+        input
+    }) => (
+        <div className="form-group row"  >
+            <label className="col-sm-2 col-form-label">{label}</label>
+            <div className="col-sm-10" >
+            {values.split(',').map((val, index) =>{
+                return (
+                <div key={index}>
+                    <input
+                        name={inputname}
+                        type={type}
+                        value={val}
+                        onChange={e =>{input.onChange(e)}}
+                        />{' '}
+                        {val}
+                </div>
+                )
+            })}
+            </div>
+        </div>
+    );
+
     renderDropzoneInput = ({
         input,
         meta: {
@@ -73,15 +102,15 @@ class CarCreate extends React.Component {
             <>
                 <Dropzone name="file" accept={'image/*'} multiple={true} onDrop={this.onDrop.bind(input)}>
                     {({getRootProps, getInputProps}) => (
-                        < div className = "field" onChange = {input.onChange} >
-                            <label>Upload an image</label>
-                            <div className="ui action input" {...getRootProps()}>
-                                <input type = "text"
+                        <div className ="form-group row" onChange = {input.onChange} >
+                            <label className="col-sm-2 col-form-label">Upload an image</label>
+                            <div className="col-sm-10" {...getRootProps()}>
+                                <input className="form-control" type = "text"
                                 placeholder = {
                                         this.props.images.length>0 ? (this.props.images.map((file) => {
                                                                     return file.name
                                                                 })) : 'Drag & drop some files here, or click to select files'} readOnly />
-                                <input type = "file"
+                                <input className="form-control" type = "file"
                                 name = "image" {
                                     ...getInputProps()
                                 }
@@ -94,8 +123,7 @@ class CarCreate extends React.Component {
                     )}
                 </Dropzone>
                 {touched &&
-                        ((error && <div className="ui error message">
-                            <div className = "header">{error}</div></div > ))
+                        ((error && <div className="text-danger"> {error}</div > ))
                 }
             </>
         );
@@ -112,7 +140,7 @@ class CarCreate extends React.Component {
         if(e.target.value)
             this.props.getSelectedModel(e.target.value)
     }
-
+    
     handleBrandChange = (e) => {
         this.props.emptySelectedModel();
         if (e.target.value)
@@ -122,7 +150,6 @@ class CarCreate extends React.Component {
     }
 
     onSubmit = () => {
-        
         var formData = new FormData(document.getElementById('create-form'));
 
         if (this.props.images) {
@@ -136,17 +163,21 @@ class CarCreate extends React.Component {
 
     render() {
         return(
-            <form onSubmit={this.props.handleSubmit(this.onSubmit)} className="ui form error" id="create-form" encType="multipart/form-data">
-                <Field type="text" name="title" component={this.renderField} label="Enter Title"/>
-                <Field type="text" name = "description" component={this.renderField} label="Enter Description"/>
-                <Field name="brand" component={this.renderSelectField} label="Select Brand" onChangeVal={this.handleBrandChange.bind(this)} >
+            <form onSubmit={this.props.handleSubmit(this.onSubmit)} className="container py-lg-4" id="create-form" encType="multipart/form-data">
+                <Field type="text" name="title" component={this.renderField} label="Title"/>
+                <Field type="text" name = "description" component={this.renderField} label="Description"/>
+                <Field name="brand" component={this.renderSelectField} label="Brand" onChangeVal={this.handleBrandChange.bind(this)} >
                     <option value = "" >Select a brand</option>
                     { this.props.brands.map((item) => <option key={item.name} value={item.name}>{item.name}</option>) }
                 </Field>
-                <Field name="model" component={this.renderSelectField} label="Select Model" selectVal={this.props.selectedModel} onChangeVal={this.handleModelChange.bind(this)} >
+                <Field name="model" component={this.renderSelectField} label="Model" selectVal={this.props.selectedModel} onChangeVal={this.handleModelChange.bind(this)} >
                     <option value = "" >Select a model</option>
                     {this.props.models.map((item) => <option key={item} value={item}>{item}</option>)}
                 </Field>
+                <Field type="text" name="price" component={this.renderField} label="Price"/>
+                <Field type="text" name="year" component={this.renderField} label="Year"/>
+                <Field type="radio" name="fuelType" inputname="fuelType" component={this.renderRadioInput} label="Fuel Type" values="Petrol,Diesel,Gasoline" />
+                <Field type="radio" name="drivingType" inputname="drivingType" component={this.renderRadioInput} label="Driving Type" values="Manual,Automatic"/>
                 <Field name="image" component={this.renderDropzoneInput}/>
                 <button className="ui button primary" disabled={this.props.pristine || this.props.submitting}>Submit</button>
             </form>
@@ -158,13 +189,13 @@ const validate = formValues => {
     const errors = {}
     if (!formValues.title) {
         errors.title = 'Required'
-    } else if (formValues.title.length > 15) {
-        errors.title = 'Must be 15 characters or less'
+    } else if (formValues.title.length > 30) {
+        errors.title = 'Must be 30 characters or less'
     }
     if (!formValues.description) {
         errors.description = 'Required'
-    } else if ((formValues.description.length > 30)) {
-        errors.email = 'Must be 30 characters or less'
+    } else if ((formValues.description.length > 80)) {
+        errors.email = 'Must be 80 characters or less'
     }
     if (!formValues.brand) {
         errors.brand = 'You must select a brand'

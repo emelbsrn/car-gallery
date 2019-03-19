@@ -14,6 +14,27 @@ let CarSchema = new Schema({
     model: {
         type: String
     },
+    year: {
+        type: Number
+    },
+    price: {
+        type: Number
+    },
+    fuelType: {
+        type: String
+    },
+    drivingType: {
+        type: String
+    },
+    milage: {
+        type: Number
+    },
+    Color: {
+        type: String
+    },
+    horsePower: {
+        type: Number
+    },
     imagePaths: {
         type: Array
     }

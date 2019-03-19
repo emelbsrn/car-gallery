@@ -8,10 +8,10 @@ router.post('/cars', function (req, res) {
     const newCar = new Car(req.body);
     console.log(req.files)
     for (var i=0; i< uploadFile.length; i++) {
-        const imagePath = `${__dirname}/../images/${uploadFile[i].name}`
+        const imagePath = uploadFile[i].name;
         newCar.imagePaths[i] = imagePath
         uploadFile[i].mv(
-            imagePath,
+            `${__dirname}/../../images/${imagePath}`,
             function (err, todos) {
                 if (err) {
                     console.log(err);
@@ -44,6 +44,18 @@ router.get('/brands', function (req, res) {
 
 router.get('/cars', function (req, res) {
     Car.find(function (err, todos) {
+        if (err) {
+            console.log(err);
+        } else {
+            res.json(todos);
+        }
+    });
+});
+
+router.get('/cars/:_id', function (req, res) {
+    
+    Car.findById(req.params._id,
+    function (err, todos) {
         if (err) {
             console.log(err);
         } else {

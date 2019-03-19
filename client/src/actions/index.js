@@ -22,6 +22,14 @@ export const fetchCars = () => async dispatch => {
     });
 };
 
+export const fetchCar = id => async dispatch => {
+    const response = await cars.get(`/cars/${id}`);
+    dispatch({
+        type: 'FETCH_CAR',
+        payload: response.data
+    });
+};
+
 export const getBrandList = () => async dispatch => {
     const response = await cars.get('/brands');
     dispatch({
